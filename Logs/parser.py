@@ -31,21 +31,26 @@ def search_in_log(s_input,search_string):
     if len(search_string.split("=")) == 2:
         search_key=search_string.split("=")[0]
         search_val=search_string.split("=")[1]
+        if len(search_val) == 0:
+            print("Search string has key \"%s\", but val is empty!" % search_key)
+            exit (1)
         # Searching among HTTP requests
         if search_key in ('method', 'request'):
             pattern = r"\"(HEAD|GET|POST|PUT|DELETE)\s.+?\w\""
             match = re.search(pattern,s_input)
             if match:
-                if re.search(search_val,match.group()):
-                    found_counter += 1
+                m_match = re.findall(search_val,match.group())
+                if m_match:
+                    found_counter += len(m_match)
         # Searching among client software
         elif search_key in ('software', 'client'):
             pattern = r"\"\w.*?\""
             # last entry in the line like: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.59 Safari/537.36"
             match = re.findall(pattern,s_input)[-1]
             if match:
-                if re.search(search_val,match):
-                    found_counter += 1
+                c_match = re.findall(search_val,match)
+                if c_match:
+                    found_counter += len(c_match)
         # Searching among response codes 
         elif search_key in ('response', 'code'):
             pattern = r"\s\d{3}\s"
